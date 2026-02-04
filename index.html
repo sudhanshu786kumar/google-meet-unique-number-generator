@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google Meet Style Code Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background-color: #f4f4f9;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+    }
+    #codes {
+      margin-top: 20px;
+      max-height: 400px;
+      overflow-y: auto;
+      padding: 10px;
+      border: 1px solid #ccc;
+      background-color: #fff;
+    }
+    button {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #4285f4;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
+    button:hover {
+      background-color: #357ae8;
+    }
+    .code {
+      font-family: monospace;
+      margin: 2px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Google Meet Style Code Generator</h1>
+  <button id="generate">Generate Next Code</button>
+  <div id="codes"></div>
+
+  <script>
+    // ===== GoogleMeetCodeGenerator Class =====
+    class GoogleMeetCodeGenerator {
+      constructor() {
+        this.max3 = Math.pow(26, 3);
+        this.max4 = Math.pow(26, 4);
+
+        // Random start offsets
+        this.prefix = Math.floor(Math.random() * this.max3);
+        this.middle = Math.floor(Math.random() * this.max4);
+        this.suffix = Math.floor(Math.random() * this.max3);
+      }
+
+      toBase26(n, length) {
+        const chars = [];
+        while (n > 0) {
+          chars.push(String.fromCharCode(97 + (n % 26)));
+          n = Math.floor(n / 26);
+        }
+        while (chars.length < length) chars.push('a');
+        return chars.reverse().join('');
+      }
+
+      permuteMiddle(n) {
+        const a = Math.floor(n / (26*26*26)) % 26;
+        const b = Math.floor(n / (26*26)) % 26;
+        const c = Math.floor(n / 26) % 26;
+        const d = n % 26;
+
+        const pa = (a + b) % 26;
+        const pb = (b + d) % 26;
+        const pc = (c + a) % 26;
+        const pd = (d + c) % 26;
+
+        return String.fromCharCode(97+pa,97+pb,97+pc,97+pd);
+      }
+
+      next() {
+        const middleBlock = this.permuteMiddle(this.middle);
+        const code = `${this.toBase26(this.prefix,3)}-${middleBlock}-${this.toBase26(this.suffix,3)}`;
+
+        // Increment counters
+        this.suffix += 1;
+        if (this.suffix >= this.max3) {
+          this.suffix = 0;
+          this.middle += 1;
+          if (this.middle >= this.max4) {
+            this.middle = 0;
+            this.prefix += 1;
+            if (this.prefix >= this.max3) this.prefix = 0;
+          }
+        }
+
+        return code;
+      }
+    }
+
+    // ===== Initialize Generator =====
+    const generator = new GoogleMeetCodeGenerator();
+
+    const generateBtn = document.getElementById('generate');
+    const codesDiv = document.getElementById('codes');
+
+    generateBtn.addEventListener('click', () => {
+      const code = generator.next();
+      const div = document.createEl
